@@ -2,6 +2,8 @@ from typing import List
 from models.event import Event
 from models.participant import Participant
 from lib.utils import save_to_file
+from models.rsvp_status import RSVPStatus
+
 
 events: List[Event] = []
 
@@ -22,9 +24,10 @@ def atur_rsvp(event_idx: int, participant_name: str, confirmation: str) -> bool:
     for participant in event.participants:
         if participant.name.lower() == participant_name.lower():
             if confirmation.lower() == "ya":
-                participant.status = participant.status.CONFIRMED
+                participant.status = RSVPStatus.ATTENDING
             else:
-                participant.status = participant.status.DECLINED
+                participant.status = RSVPStatus.NOT_ATTENDING
+
             return True
     return False
 

@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class RSVPStatus(Enum):
     UNCONFIRMED = "Belum Dikonfirmasi"
     ATTENDING = "Hadir"
