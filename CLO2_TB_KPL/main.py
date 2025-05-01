@@ -10,44 +10,50 @@ from lib.utils import tampilkan_event
 def clear_screen():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-# Fungsi validasi format tanggal
 def validasi_tanggal(tanggal: str) -> bool:
-    pola = r"^(0[1-9]|[12][0-9]|3[01])\s(Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember)\s\d{4}$"
-    return re.match(pola, tanggal) is not None
+    pola = r"^(0?[1-9]|[12][0-9]|3[01])\s(januari|februari|maret|april|mei|juni|juli|agustus|september|oktober|november|desember)\s\d{4}$"
+    return re.match(pola, tanggal.strip().lower()) is not None
 
-# --- fungsi login ---
+def format_tanggal(tanggal: str) -> str:
+    bagian = tanggal.strip().split(" ")
+    if len(bagian) != 3:
+        return tanggal
+    hari, bulan, tahun = bagian
+    return f"{int(hari)} {bulan.capitalize()} {tahun}"
+
 def login():
     admin_username = "admin"
     admin_password = "1234"
 
-    print("=== LOGIN ADMIN ===")
+    print("\n=== LOGIN ADMIN ===")
     username = input("Username: ")
     password = input("Password: ")
 
     if username == admin_username and password == admin_password:
-        print("\nLogin berhasil!\n")
+        print("\n✅ Login berhasil!\n")
         return True
     else:
-        print("\nUsername atau password salah. Akses ditolak.\n")
+        print("\n❌ Username atau password salah. Akses ditolak.\n")
         return False
 
-# --- tampilkan menu ---
 def tampilkan_menu():
-    print("\n=== CLI EVENT ORGANIZER ===")
-    print("1. Tambah Event")
-    print("2. Tambah Peserta ke Event")
-    print("3. Atur RSVP")
-    print("4. Lihat Semua Event")
-    print("5. Export Data ke File")
-    print("6. Tambah Klien")
-    print("7. Tambah Vendor")
-    print("8. Tambah Staff")
-    print("9. Tambah Inventaris")
-    print("10. Tambah Catatan Keuangan")
-    print("11. Lihat Laporan Keuangan")
-    print("12. Keluar")
+    print("\n╔════════════════════════════════╗")
+    print("║      CLI EVENT ORGANIZER       ║")
+    print("╚════════════════════════════════╝")
+    print("[1] Tambah Event")
+    print("[2] Tambah Peserta ke Event")
+    print("[3] Atur RSVP")
+    print("[4] Lihat Semua Event")
+    print("[5] Export Data ke File")
+    print("[6] Tambah Klien")
+    print("[7] Tambah Vendor")
+    print("[8] Tambah Staff")
+    print("[9] Tambah Inventaris")
+    print("[10] Tambah Catatan Keuangan")
+    print("[11] Lihat Laporan Keuangan")
+    print("[12] Keluar")
+    print("────────────────────────────────")
 
-# --- program utama ---
 def main():
     if not login():
         return
@@ -57,48 +63,57 @@ def main():
         pilih = input("Pilih menu: ")
 
         if pilih == "1":
-            title = input("Judul Event: ")
-            location = input("Lokasi      : ")
+            print("\n────────────── Tambah Event ──────────────")
+            title = input("Judul Event   : ")
+            location = input("Lokasi        : ")
 
             while True:
-                date = input("Tanggal (format: DD Bulan YYYY, contoh: 01 Januari 2025): ")
+                date = input("Tanggal       : ")
                 if validasi_tanggal(date):
+                    date = format_tanggal(date)
                     break
                 else:
-                    print("❌ Format tanggal tidak valid. Pastikan sesuai 'DD Bulan YYYY' dengan nama bulan kapital.")
+                    print("❌ Format tanggal tidak valid. Contoh: 01 Januari 2025 / 1 januari 2025")
 
             event = tambah_event(title, location, date)
             print("\n✅ Event berhasil ditambahkan!")
-            print(f"Judul   : {event.title}")
-            print(f"Lokasi  : {event.location}")
-            print(f"Tanggal : {event.date}")
-            print("Peserta : (belum ada peserta)")
+            print("────────────────────────────────────────────")
+            print(f"📌 Judul   : {event.title}")
+            print(f"📍 Lokasi  : {event.location}")
+            print(f"📅 Tanggal : {event.date}")
+            print(f"👥 Peserta : (belum ada peserta)")
+            print("────────────────────────────────────────────")
 
         elif pilih == "2":
+            print("\n────────── Tambah Peserta ──────────")
             if not events:
                 print("❌ Belum ada event.")
             else:
+                print("Daftar Event:")
                 for i, e in enumerate(events):
                     print(f"[{i+1}] {e.title}")
                 try:
                     idx = int(input("Pilih nomor event: ")) - 1
-                    name = input("Nama Peserta: ")
+                    name = input("\nNama Peserta: ")
                     tambah_peserta(idx, name)
-                    print(f"✅ Peserta {name} berhasil ditambahkan ke event '{events[idx].title}'.")
+                    print(f"\n✅ Peserta '{name}' berhasil ditambahkan ke event '{events[idx].title}'.")
                 except:
                     print("❌ Pilihan tidak valid.")
 
         elif pilih == "3":
+            print("\n──────────── Atur RSVP ────────────")
             if not events:
                 print("❌ Belum ada event.")
             else:
+                print("Daftar Event:")
                 for i, e in enumerate(events):
                     print(f"[{i+1}] {e.title}")
                 try:
-                    idx = int(input("\nPilih event: ")) - 1
+                    idx = int(input("Pilih event: ")) - 1
                     if not events[idx].participants:
                         print("❌ Belum ada peserta.")
                     else:
+                        print("\n📋 Daftar Peserta:")
                         for p in events[idx].participants:
                             print(f"- {p.name:<8} | Status: {p.status.value}")
                         nama = input("\nMasukkan nama peserta: ")
@@ -149,7 +164,6 @@ def main():
         elif pilih == "10":
             print("\n=== Tambah Catatan Keuangan ===")
 
-            # Loop deskripsi
             while True:
                 description = input("Deskripsi pengeluaran/pemasukan: ").strip()
                 if description:
@@ -157,7 +171,6 @@ def main():
                 else:
                     print("❌ Deskripsi tidak boleh kosong!")
 
-            # Loop jumlah
             while True:
                 amount_str = input("Jumlah (Rp): ").replace('.', '').replace(',', '').strip()
                 try:
@@ -169,7 +182,6 @@ def main():
                 except ValueError:
                     print("❌ Jumlah harus angka valid! Contoh: 150000 atau 150.000")
 
-            # Loop tipe transaksi
             while True:
                 print("Tipe Transaksi:")
                 print("1. Income (Pemasukan)")
@@ -186,19 +198,13 @@ def main():
                     print("❌ Pilihan tidak valid. Harus 1 atau 2.")
 
             record = tambah_keuangan(description, amount, tipe)
-
-            # Format jumlah ke Rupiah
             formatted_amount = f"Rp {int(amount):,}".replace(',', '.')
-
-            # Emoji berdasarkan tipe
             tipe_emoji = "💰" if tipe == "Income" else "💸"
 
             print("\n✅ Catatan berhasil ditambahkan!")
             print(f"  {tipe_emoji} {record.description}")
             print(f"     Tipe   : {record.type}")
             print(f"     Jumlah : {formatted_amount}")
-
-
 
         elif pilih == "11":
             laporan_keuangan()
@@ -210,7 +216,7 @@ def main():
         else:
             print("❌ Pilihan tidak valid!")
 
-        input("\nTekan Enter untuk kembali ke menu...")  # biar ga ketumpuk print menu lagi
+        input("\nTekan Enter untuk kembali ke menu...")
 
 if __name__ == "__main__":
     main()
